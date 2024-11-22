@@ -1,7 +1,7 @@
 /******************************************************************
  *
  *   ADD YOUR NAME / SECTION NUMBER HERE
- *
+ *  Richard Choi / comp272
  *   This java file contains the problem solutions of canFinish and
  *   numGroups methods.
  *
@@ -72,19 +72,45 @@ class ProblemSolutions {
      * @return boolean          - True if all exams can be taken, else false.
      */
 
-    public boolean canFinish(int numExams, 
+    public boolean canFinish(int numExams,
                              int[][] prerequisites) {
-      
-        int numNodes = numExams;  // # of nodes in graph
 
-        // Build directed graph's adjacency list
-        ArrayList<Integer>[] adj = getAdjList(numExams, 
-                                        prerequisites); 
+        int numNodes = numExams;
 
-        // ADD YOUR CODE HERE - ADD YOUR NAME / SECTION AT TOP OF FILE
-        return false;
+        ArrayList<Integer>[] adj = getAdjList(numExams, prerequisites);
 
+        int[] inDegree = new int[numNodes];
+
+        for (int i = 0; i < adj.length; i++) {
+            for (int neighbor : adj[i]) {
+                inDegree[neighbor]++;
+            }
+        }
+
+        Queue<Integer> queue = new LinkedList<>();
+        for (int i = 0; i < inDegree.length; i++) {
+            if (inDegree[i] == 0) {
+                queue.add(i);
+            }
+        }
+
+        int visited = 0;
+
+        while (!queue.isEmpty()) {
+            int current = queue.poll();
+            visited++;
+
+            for (int neighbor : adj[current]) {
+                inDegree[neighbor]--;
+                if (inDegree[neighbor] == 0) {
+                    queue.add(neighbor);
+                }
+            }
+        }
+
+        return visited == numNodes;
     }
+
 
 
     /**
@@ -162,29 +188,17 @@ class ProblemSolutions {
      *   All three nodes are connected by at least one
      *   edge. So they form on large group.
      */
-
     public int numGroups(int[][] adjMatrix) {
         int numNodes = adjMatrix.length;
-        Map<Integer,List<Integer>> graph = new HashMap();
-        int i = 0, j =0;
+        Map<Integer, List<Integer>> graph = new HashMap();
+        int i = 0, j = 0;
 
-        /*
-         * Converting the Graph Adjacency Matrix to
-         * an Adjacency List representation. This
-         * sample code illustrates a technique to do so.
-         */
-
-        for(i = 0; i < numNodes ; i++){
-            for(j = 0; j < numNodes; j++){
-                if( adjMatrix[i][j] == 1 && i != j ){
-                    // Add AdjList for node i if not there
+        for (i = 0; i < numNodes; i++) {
+            for (j = 0; j < numNodes; j++) {
+                if (adjMatrix[i][j] == 1 && i != j) {
                     graph.putIfAbsent(i, new ArrayList());
-                    // Add AdjList for node j if not there
                     graph.putIfAbsent(j, new ArrayList());
-
-                    // Update node i adjList to include node j
                     graph.get(i).add(j);
-                    // Update node j adjList to include node i
                     graph.get(j).add(i);
                 }
             }
@@ -192,7 +206,35 @@ class ProblemSolutions {
 
         // YOUR CODE GOES HERE - you can add helper methods, you do not need
         // to put all code in this method.
-        return -1;
+
+        boolean[] visited = new boolean[numNodes];
+        int groupCount = 0;
+
+        for (int node = 0; node < numNodes; node++) {
+            if (!visited[node]) {
+                groupCount++;
+                dfs(node, graph, visited);
+            }
+        }
+
+        return groupCount;
     }
 
+    private void dfs(int node, Map<Integer, List<Integer>> graph, boolean[] visited) {
+        visited[node] = true;
+
+        if (graph.containsKey(node)) {
+            for (int neighbor : graph.get(node)) {
+                if (!visited[neighbor]) {
+                    dfs(neighbor, graph, visited);
+                }
+            }
+        }
+    }
+
+
+
+
+
+//end of code
 }
